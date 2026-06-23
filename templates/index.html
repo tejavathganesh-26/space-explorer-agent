@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Space Explorer with Carl the Alien</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            background: linear-gradient(135deg, #0b0c1e, #1a2740);
+            color: #f0e6d0;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 50px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid #ffaa00;
+        }
+        h1 {
+            font-size: 3em;
+            color: #ffcc66;
+            text-shadow: 3px 3px 0 #aa6600;
+            margin-top: 0;
+        }
+        .carl-avatar {
+            font-size: 5em;
+            background-color: #4caf9e;
+            width: 120px;
+            height: 120px;
+            line-height: 120px;
+            border-radius: 60px 60px 20px 60px;
+            margin: 0 auto 20px;
+            border: 4px solid #ffaa00;
+            box-shadow: 0 8px 0 #1e4a4a;
+        }
+        .button-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .space-button {
+            background-color: #ffaa00;
+            color: #1a1a2e;
+            font-size: 1.3em;
+            font-weight: bold;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 6px 0 #b37400;
+            transition: 0.1s ease;
+            border: 2px solid #ffe68f;
+            flex: 1 1 150px;
+        }
+        .space-button:hover {
+            background-color: #ffbb22;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #b37400;
+        }
+        .space-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #b37400;
+        }
+        .content-card {
+            background: rgba(10, 20, 40, 0.8);
+            border-radius: 40px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 2px solid #88ccff;
+        }
+        .space-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 30px;
+            border: 5px solid white;
+            box-shadow: 0 0 20px #88ccff;
+            margin-top: 15px;
+        }
+        .carl-says {
+            background-color: #352a6b;
+            padding: 15px 25px;
+            border-radius: 60px 60px 60px 10px;
+            font-size: 1.3em;
+            text-align: left;
+            border: 3px solid #ffaa00;
+            margin: 20px 0;
+        }
+        .loading {
+            font-size: 2em;
+            color: #88ccff;
+        }
+        .error {
+            color: #ff8888;
+            background-color: #330000;
+            padding: 15px;
+            border-radius: 30px;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #aaa;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="carl-avatar">👽</div>
+        <h1>Cosmic Carl's Space Club</h1>
+        <p>Hi, I'm Carl! Let's explore the universe together. Click a button to see a space wonder!</p>
+
+        <div class="button-panel">
+            <button class="space-button" onclick="fetchApod()">📅 Picture of the Day</button>
+            <button class="space-button" onclick="fetchMarsPhoto()">📸 Mars Rover Pic</button>
+            <button class="space-button" onclick="fetchFunFact()">🤯 Fun Space Fact</button>
+        </div>
+
+        <!-- This is where Carl shows the stuff! -->
+        <div id="content-area" class="content-card">
+            <p class="carl-says">👽 Click a button above and I'll fetch some space magic for you!</p>
+        </div>
+        <div class="footer">Data from NASA, explained by your friend Carl.</div>
+    </div>
+
+    <script>
+        const contentArea = document.getElementById('content-area');
+
+        function showLoading(message = "🚀 Blasting off to get your data...") {
+            contentArea.innerHTML = `<p class="loading">${message}</p>`;
+        }
+
+        function showError(message) {
+            contentArea.innerHTML = `<div class="error"><h3>😵 Uh-oh!</h3><p>${message}</p><p>Let's try that again!</p></div>`;
+        }
+
+        // --- Function to fetch and display APOD ---
+        async function fetchApod() {
+            showLoading("📡 Asking Carl to get today's space picture...");
+            try {
+                const response = await fetch('/api/apod');
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                contentArea.innerHTML = `
+                    <h2>${data.kid_friendly_title}</h2>
+                    <p><strong>📅 ${data.date}</strong></p>
+                    <p class="carl-says">${data.explanation}</p>
+                    <img src="${data.image_url}" alt="${data.title}" class="space-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=Image+Not+Available'">
+                    <p><small>NASA calls this: ${data.title}</small></p>
+                `;
+            } catch (error) {
+                showError(error.message || "Carl couldn't get the picture. His space phone is broken!");
+            }
+        }
+
+        // --- Function to fetch and display Mars Photo ---
+        async function fetchMarsPhoto() {
+            showLoading("🔴 Driving the Mars rover to find you a cool rock...");
+            try {
+                const response = await fetch('/api/mars-photo');
+                const data = await response.json();
+                 if (data.error) throw new Error(data.error);
+
+                contentArea.innerHTML = `
+                    <h2>📸 Carl's Mars Photo Booth</h2>
+                    <img src="${data.img_src}" alt="Mars Photo from ${data.rover_name}" class="space-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=Mars+Image+Loading+Issue'">
+                    <p class="carl-says">${data.caption}</p>
+                `;
+            } catch (error) {
+                showError(error.message || "The rover is shy and hid behind a rock. Try again!");
+            }
+        }
+
+        // --- Function to fetch and display a Fun Fact ---
+        async function fetchFunFact() {
+            showLoading("🤔 Carl is thinking of a good one...");
+             try {
+                const response = await fetch('/api/fun-fact');
+                const data = await response.json();
+                contentArea.innerHTML = `
+                    <h2>💡 Carl's Fun Fact Corner</h2>
+                    <p class="carl-says" style="font-size: 1.8em; text-align: center;">${data.fact}</p>
+                    <p>🤯 Whoa!</p>
+                `;
+            } catch (error) {
+                showError("Carl forgot all his facts! He needs a space snack. Try again.");
+            }
+        }
+
+        // Optional: Load a fun fact when the page first loads
+        window.onload = fetchFunFact;
+    </script>
+</body>
+</html>
